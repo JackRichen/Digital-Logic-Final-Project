@@ -5,7 +5,7 @@ input clk;
 input [3:0] Disp_1;
 input [3:0] Disp_2;
 output [6:0] seg;
-output reg [1:0] an;
+output reg [7:0] an;
 
 reg clk_usable;
 
@@ -28,18 +28,49 @@ reg [16:0] count = 0;
     
 reg [3:0] Disp_Current;
 
-seven_seg_display(.bcd(Disp_Current),.seg(seg));
+seven_seg_display ss_disp (.bcd(Disp_Current),.seg(seg));
 
 always @(posedge clk_usable) begin
-        if (an[0] == 2'b01) 
-        begin 
-            an <= 2'b10;
-            Disp_Current <= Disp_1;
+case (an)
+        8'b1111_1110: begin // 2
+            an <= 8'b1111_1101;
+            Disp_Current <= Disp_2; // next 
         end
-        else 
-        begin
-            an <= 2'b01;
-            Disp_Current <= Disp_2;
+        8'b1111_1101: begin // 3
+            an <= 8'b1111_1011;
+            Disp_Current <= 4'b1111; 
         end
-    end
+        8'b1111_1011: begin // 4
+            an <= 8'b1111_0111;
+            Disp_Current <= 4'b1111; 
+        end
+        8'b1111_0111: begin // 5
+            an <= 8'b1110_1111;
+            Disp_Current <= 4'b1111; 
+        end
+        8'b1110_1111: begin // 6
+            an <= 8'b1101_1111;
+            Disp_Current <= 4'b1111; 
+        end
+        8'b1101_1111: begin // 7
+            an <= 8'b1011_1111;
+            Disp_Current <= 4'b1111;
+        end
+        8'b1011_1111: begin // 8
+            an <= 8'b0111_1111;
+            Disp_Current <= 4'b1111; 
+        end
+        8'b0111_1111: begin // 1
+            an <= 8'b1111_1110; 
+            Disp_Current <= Disp_1; // current
+        end
+        default: begin // def
+            an <= 8'b1111_1110; 
+            Disp_Current <= 4'b1001; // shows a non-zero, non obtainable number to show an issue
+        end
+    endcase
+end
+
+
+
 endmodule
